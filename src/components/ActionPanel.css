@@ -1,0 +1,217 @@
+.action-panel {
+  background: rgba(0, 0, 0, 0.85);
+  padding: 20px;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 300px;
+  max-width: 350px;
+  border: 2px solid #34495e;
+}
+
+.action-panel.disabled {
+  opacity: 0.7;
+}
+
+.waiting-message {
+  color: #bdc3c7;
+  text-align: center;
+  font-size: 16px;
+  padding: 20px;
+}
+
+.action-info {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.pot-info, .current-bet-info, .your-bet-info {
+  color: white;
+  font-size: 14px;
+}
+
+.pot-amount {
+  color: #f1c40f;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.bet-amount {
+  color: #e67e22;
+  font-weight: bold;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.fold-btn {
+  background: linear-gradient(135deg, #7f8c8d, #6c7a7d);
+  color: white;
+}
+
+.fold-btn:hover {
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+}
+
+.check-btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+}
+
+.check-btn:hover {
+  background: linear-gradient(135deg, #5dade2, #3498db);
+}
+
+.call-btn {
+  background: linear-gradient(135deg, #27ae60, #229954);
+  color: white;
+}
+
+.call-btn:hover {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.raise-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  width: 100%;
+  padding: 15px;
+}
+
+.raise-btn:hover {
+  background: linear-gradient(135deg, #ec7063, #e74c3c);
+}
+
+.allin-btn {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  color: white;
+}
+
+.allin-btn:hover {
+  background: linear-gradient(135deg, #a569bd, #9b59b6);
+}
+
+.raise-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.raise-presets {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.raise-presets button {
+  padding: 8px 12px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.raise-presets button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.raise-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.raise-slider {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #27ae60, #e74c3c);
+  -webkit-appearance: none;
+  outline: none;
+}
+
+.raise-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.raise-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  border: none;
+}
+
+.raise-amount-display {
+  min-width: 80px;
+}
+
+.raise-input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  text-align: center;
+  border: 2px solid #e74c3c;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-weight: bold;
+}
+
+.raise-input:focus {
+  outline: none;
+  border-color: #f39c12;
+}
+
+/* 移除数字输入框的箭头 */
+.raise-input::-webkit-outer-spin-button,
+.raise-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.raise-input[type=number] {
+  -moz-appearance: textfield;
+}

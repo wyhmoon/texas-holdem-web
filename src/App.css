@@ -1,0 +1,217 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  min-height: 100vh;
+  color: white;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid #34495e;
+}
+
+.app-header h1 {
+  font-size: 28px;
+  background: linear-gradient(135deg, #f1c40f, #e67e22);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-info {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.blind-info {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #bdc3c7;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 30px;
+}
+
+.controls-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px;
+  min-width: 320px;
+}
+
+.control-btn {
+  padding: 15px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.start-btn {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+}
+
+.start-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
+}
+
+.reset-btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+
+.reset-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+}
+
+.game-over {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 40px 60px;
+  border-radius: 20px;
+  border: 2px solid #e74c3c;
+}
+
+.game-over h2 {
+  font-size: 36px;
+  color: #e74c3c;
+  margin-bottom: 15px;
+}
+
+.game-over p {
+  font-size: 18px;
+  color: #bdc3c7;
+  margin-bottom: 25px;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.5);
+  border-top: 1px solid #34495e;
+}
+
+.app-footer p {
+  font-size: 13px;
+  color: #7f8c8d;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .app-main {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .controls-section {
+    min-width: auto;
+  }
+  
+  .poker-table {
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 1000px) {
+  .poker-table {
+    transform: scale(0.8);
+  }
+  
+  .action-panel {
+    min-width: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    flex-direction: column;
+  }
+  
+  .poker-table {
+    transform: scale(0.6);
+  }
+  
+  .app-header h1 {
+    font-size: 22px;
+  }
+  
+  .action-panel {
+    min-width: 300px;
+    padding: 15px;
+  }
+  
+  .action-btn {
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+}
+
+/* 加载动画 */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #f1c40f;
+  animation: spin 1s ease-in-out infinite;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #34495e;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a6278;
+}

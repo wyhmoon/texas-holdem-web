@@ -1,0 +1,111 @@
+.card {
+  width: 70px;
+  height: 100px;
+  background: linear-gradient(145deg, #ffffff, #f0f0f0);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: 'Georgia', serif;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #ddd;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.card-small {
+  width: 50px;
+  height: 72px;
+}
+
+.card-small .card-rank {
+  font-size: 14px;
+}
+
+.card-small .card-suit {
+  font-size: 12px;
+}
+
+.card-small .card-suit-large {
+  font-size: 24px;
+}
+
+.card-back {
+  background: linear-gradient(135deg, #1a5f2a, #0d3d1a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #fff;
+}
+
+.card-pattern {
+  width: 80%;
+  height: 85%;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgba(255, 255, 255, 0.1) 5px,
+    rgba(255, 255, 255, 0.1) 10px
+  );
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.card-corner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  line-height: 1;
+}
+
+.top-left {
+  align-self: flex-start;
+}
+
+.bottom-right {
+  align-self: flex-end;
+  transform: rotate(180deg);
+}
+
+.card-rank {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.card-suit {
+  font-size: 16px;
+}
+
+.card-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.card-suit-large {
+  font-size: 32px;
+}
+
+/* 动画效果 */
+@keyframes dealCard {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) rotateY(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateY(0);
+  }
+}
+
+.card-deal {
+  animation: dealCard 0.3s ease-out;
+}
