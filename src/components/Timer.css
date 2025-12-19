@@ -1,0 +1,275 @@
+.timer-container {
+  position: fixed;
+  right: 20px;
+  top: 100px;
+  z-index: 100;
+}
+
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.timer.inactive {
+  opacity: 0.5;
+}
+
+.timer.active {
+  opacity: 1;
+}
+
+.timer-display {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+
+.timer-circle {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.timer-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-bg {
+  fill: none;
+  stroke: rgba(52, 73, 94, 0.5);
+  stroke-width: 3;
+}
+
+.timer-progress {
+  fill: none;
+  stroke: #2ecc71;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-color 0.3s;
+}
+
+.timer.warning .timer-progress {
+  stroke: #f39c12;
+}
+
+.timer.critical .timer-progress {
+  stroke: #e74c3c;
+  animation: pulseStroke 0.5s infinite alternate;
+}
+
+@keyframes pulseStroke {
+  from {
+    stroke: #e74c3c;
+    filter: drop-shadow(0 0 5px rgba(231, 76, 60, 0.5));
+  }
+  to {
+    stroke: #c0392b;
+    filter: drop-shadow(0 0 10px rgba(231, 76, 60, 0.8));
+  }
+}
+
+.timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timer-number {
+  font-size: 48px;
+  font-weight: bold;
+  color: white;
+  line-height: 1;
+}
+
+.timer.critical .timer-number {
+  color: #e74c3c;
+  animation: pulseNumber 0.5s infinite alternate;
+}
+
+@keyframes pulseNumber {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.1);
+  }
+}
+
+.timer-unit {
+  font-size: 12px;
+  color: #bdc3c7;
+}
+
+.timer-label {
+  text-align: center;
+  font-size: 12px;
+  color: #f1c40f;
+  font-weight: bold;
+  min-height: 20px;
+}
+
+.timer.critical .timer-label {
+  color: #e74c3c;
+  animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.timer-settings-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(52, 73, 94, 0.8);
+  border: 2px solid #34495e;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.timer-settings-btn:hover {
+  background: rgba(52, 73, 94, 1);
+  transform: scale(1.15);
+}
+
+/* 倒计时设置面板 */
+.timer-settings {
+  position: fixed;
+  right: 20px;
+  top: 100px;
+  width: 280px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid #34495e;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 101;
+}
+
+.timer-settings h4 {
+  margin: 0 0 15px 0;
+  color: #f1c40f;
+  font-size: 16px;
+  text-align: center;
+}
+
+.time-presets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.time-preset {
+  padding: 10px;
+  background: rgba(52, 73, 94, 0.5);
+  border: 1px solid #34495e;
+  border-radius: 6px;
+  color: #bdc3c7;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.time-preset:hover {
+  background: rgba(52, 73, 94, 0.8);
+}
+
+.time-preset.active {
+  background: #2ecc71;
+  color: white;
+  border-color: #27ae60;
+}
+
+.custom-time {
+  margin-bottom: 15px;
+}
+
+.custom-time input {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #34495e;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.custom-time input::placeholder {
+  color: #7f8c8d;
+}
+
+.custom-time input:focus {
+  outline: none;
+  border-color: #2ecc71;
+  box-shadow: 0 0 8px rgba(46, 204, 113, 0.3);
+}
+
+.close-settings {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #34495e, #2c3e50);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.close-settings:hover {
+  background: linear-gradient(135deg, #3d5268, #36495e);
+}
+
+/* 移动设备适配 */
+@media (max-width: 768px) {
+  .timer-container {
+    right: 10px;
+    top: 80px;
+  }
+
+  .timer-display {
+    width: 100px;
+    height: 100px;
+  }
+
+  .timer-number {
+    font-size: 36px;
+  }
+
+  .timer-settings {
+    right: 10px;
+    top: 80px;
+    width: 240px;
+    padding: 15px;
+  }
+
+  .time-presets {
+    grid-template-columns: 1fr 1fr;
+  }
+}

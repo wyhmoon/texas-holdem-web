@@ -1,15 +1,26 @@
 
 import { PokerTable } from './components/PokerTable';
 import { ActionPanel } from './components/ActionPanel';
+import { GameLog } from './components/GameLog';
+import { Timer } from './components/Timer';
+import { MultiplayerLobby } from './components/MultiplayerLobby';
+import { RoomWaiting } from './components/RoomWaiting';
 import { useGame } from './hooks/useGame';
+import { useState } from 'react';
 import './App.css';
 
 function App() {
+  const [gameMode, setGameMode] = useState<'lobby' | 'waiting' | 'game'>('lobby');
+  const [roomInfo, setRoomInfo] = useState<{ roomId: string; playerName: string } | null>(null);
+  
   const { 
     gameState, 
     isProcessing, 
+    timerDuration,
+    setTimerDuration,
     startGame, 
     handlePlayerAction, 
+    handleTimeUp,
     nextRound, 
     resetGame 
   } = useGame();
@@ -17,6 +28,57 @@ function App() {
   const humanPlayer = gameState.players[0];
   const isGameOver = gameState.phase === 'ended' || humanPlayer.chips <= 0;
   const canStartNewRound = gameState.phase === 'waiting' || gameState.roundComplete;
+
+  // 多人模式处理
+  const handleCreateRoom = (playerName: string) => {
+    // 生成房间号（6位大写字母和数字）
+    const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+    setRoomInfo({ roomId, playerName });
+    setGameMode('waiting');
+    console.log('创建房间:', roomId, playerName);
+  };
+
+  const handleJoinRoom = (roomId: string, playerName: string) => {
+    // TODO: 连接WebSocket加入房间
+    console.log('加入房间:', roomId, playerName);
+    setGameMode('game');
+  };
+
+  const handlePlayOffline = () => {
+    setGameMode('game');
+  };
+
+  const handleStartGame = () => {
+    setGameMode('game');
+  };
+
+  const handleLeaveRoom = () => {
+    setRoomInfo(null);
+    setGameMode('lobby');
+  };
+
+  // 显示大厅
+  if (gameMode === 'lobby') {
+    return (
+      <MultiplayerLobby
+        onCreateRoom={handleCreateRoom}
+        onJoinRoom={handleJoinRoom}
+        onPlayOffline={handlePlayOffline}
+      />
+    );
+  }
+
+  // 显示房间等待界面
+  if (gameMode === 'waiting' && roomInfo) {
+    return (
+      <RoomWaiting
+        roomId={roomInfo.roomId}
+        playerName={roomInfo.playerName}
+        onStartGame={handleStartGame}
+        onLeaveRoom={handleLeaveRoom}
+      />
+    );
+  }
 
   return (
     <div className="app">
@@ -26,6 +88,15 @@ function App() {
           <span className="blind-info">盲注: {gameState.smallBlindAmount}/{gameState.bigBlindAmount}</span>
         </div>
       </header>
+
+      <GameLog gameState={gameState} />
+      <Timer 
+        gameState={gameState}
+        isHumanTurn={gameState.currentPlayerIndex === 0}
+        onTimeUp={handleTimeUp}
+        totalTime={timerDuration}
+        setTotalTime={setTimerDuration}
+      />
 
       <main className="app-main">
         <PokerTable gameState={gameState} />

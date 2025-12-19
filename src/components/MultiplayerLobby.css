@@ -1,0 +1,220 @@
+.lobby-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 20px;
+}
+
+.lobby-card {
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #34495e;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.lobby-card h1 {
+  text-align: center;
+  color: #f1c40f;
+  font-size: 36px;
+  margin-bottom: 30px;
+  text-shadow: 0 2px 10px rgba(241, 196, 15, 0.3);
+}
+
+.lobby-card h2 {
+  text-align: center;
+  color: #f1c40f;
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+.lobby-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.lobby-btn {
+  padding: 18px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.lobby-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.lobby-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.create-btn {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+}
+
+.create-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
+}
+
+.join-btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+
+.join-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+}
+
+.offline-btn {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);
+}
+
+.offline-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(155, 89, 182, 0.6);
+}
+
+.back-btn {
+  background: linear-gradient(135deg, #7f8c8d, #6c7a7d);
+  box-shadow: 0 4px 15px rgba(127, 140, 141, 0.4);
+}
+
+.back-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(127, 140, 141, 0.6);
+}
+
+.lobby-info {
+  margin-top: 30px;
+  padding: 15px;
+  background: rgba(52, 152, 219, 0.1);
+  border-left: 3px solid #3498db;
+  border-radius: 8px;
+}
+
+.lobby-info p {
+  margin: 0;
+  color: #bdc3c7;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.lobby-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.lobby-input {
+  padding: 15px;
+  font-size: 16px;
+  border: 2px solid #34495e;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: all 0.2s;
+}
+
+.lobby-input::placeholder {
+  color: #7f8c8d;
+}
+
+.lobby-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+}
+
+/* 房间信息显示 */
+.room-info {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(46, 204, 113, 0.1);
+  border: 2px solid #2ecc71;
+  border-radius: 12px;
+}
+
+.room-code {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.room-code-label {
+  color: #bdc3c7;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.room-code-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #2ecc71;
+  letter-spacing: 4px;
+  font-family: monospace;
+}
+
+.players-list {
+  margin-top: 15px;
+}
+
+.players-list h4 {
+  color: #f1c40f;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.player-item {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  color: #ecf0f1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.player-item:last-child {
+  margin-bottom: 0;
+}
+
+.waiting-message {
+  text-align: center;
+  color: #bdc3c7;
+  font-size: 14px;
+  margin-top: 15px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .lobby-card {
+    padding: 30px 20px;
+  }
+
+  .lobby-card h1 {
+    font-size: 28px;
+  }
+
+  .lobby-btn {
+    padding: 15px 20px;
+    font-size: 16px;
+  }
+}

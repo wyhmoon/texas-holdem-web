@@ -1,0 +1,186 @@
+.game-log {
+  position: fixed;
+  left: 20px;
+  top: 100px;
+  width: 280px;
+  max-height: 500px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #34495e;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid #34495e;
+}
+
+.log-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #f1c40f;
+  font-weight: bold;
+}
+
+.log-close-btn {
+  background: none;
+  border: none;
+  color: #bdc3c7;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.log-close-btn:hover {
+  color: #e74c3c;
+}
+
+.log-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+  background: transparent;
+}
+
+.log-entry {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 8px;
+  font-size: 12px;
+  background: transparent;
+}
+
+.log-player {
+  font-weight: bold;
+  min-width: 60px;
+}
+
+/* 不同玩家颜色 - 只设置文字颜色，无背景 */
+.log-player.player-0 {
+  color: #85c1e9; /* 人类玩家 - 浅蓝色 */
+  background: none;
+}
+
+.log-player.player-1 {
+  color: #ec7063; /* AI 1 - 浅红色 */
+  background: none;
+}
+
+.log-player.player-2 {
+  color: #bb8fce; /* AI 2 - 浅紫色 */
+  background: none;
+}
+
+.log-player.player-3 {
+  color: #58d68d; /* AI 3 - 浅绿色 */
+  background: none;
+}
+
+.log-player.player-4 {
+  color: #f8c471; /* AI 4 - 浅橙色 */
+  background: none;
+}
+
+.log-player.player-5 {
+  color: #48c9b0; /* AI 5 - 浅青色 */
+  background: none;
+}
+
+.log-action {
+  flex: 1;
+  word-break: break-word;
+  font-size: 12px;
+}
+
+/* 不同操作颜色 - 只设置文字颜色，无背景 */
+.log-action.action-fold {
+  color: #95a5a6; /* 弃牌 - 浅灰色 */
+  background: none;
+}
+
+.log-action.action-check {
+  color: #5dade2; /* 过牌 - 浅蓝色 */
+  background: none;
+}
+
+.log-action.action-call {
+  color: #58d68d; /* 跟注 - 浅绿色 */
+  background: none;
+}
+
+.log-action.action-raise {
+  color: #f39c12; /* 加注 - 橙色 */
+  font-weight: bold;
+  background: none;
+}
+
+.log-action.action-all-in {
+  color: #ec7063; /* 全押 - 浅红色 */
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(236, 112, 99, 0.6);
+  background: none;
+}
+
+.log-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  color: #7f8c8d;
+  font-size: 12px;
+}
+
+.log-toggle-btn {
+  position: fixed;
+  left: 20px;
+  top: 100px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(52, 73, 94, 0.8);
+  border: 2px solid #34495e;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 100;
+}
+
+.log-toggle-btn:hover {
+  background: rgba(52, 73, 94, 1);
+  transform: scale(1.1);
+}
+
+/* 滚动条样式 */
+.log-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.log-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.log-content::-webkit-scrollbar-thumb {
+  background: #34495e;
+  border-radius: 3px;
+}
+
+.log-content::-webkit-scrollbar-thumb:hover {
+  background: #7f8c8d;
+}

@@ -10,10 +10,12 @@ import { makeAIDecision, getAIActionDelay } from '../utils/aiPlayer';
 export function useGame() {
   const [gameState, setGameState] = useState<GameState>(createInitialGameState());
   const [isProcessing, setIsProcessing] = useState(false);
+  const [timerDuration, setTimerDuration] = useState(60); // 默认60秒
   const processingRef = useRef(false);
 
   // 开始新一轮
   const startGame = useCallback(() => {
+    console.log('Starting new game');
     setGameState(state => startNewRound(state));
   }, []);
 
@@ -25,6 +27,13 @@ export function useGame() {
 
     setGameState(state => playerAction(state, 0, action, raiseAmount));
   }, [gameState.currentPlayerIndex, isProcessing]);
+
+  // 时间到自动弃牌
+  const handleTimeUp = useCallback(() => {
+    if (gameState.currentPlayerIndex === 0 && !gameState.roundComplete) {
+      setGameState(state => playerAction(state, 0, 'fold'));
+    }
+  }, [gameState.currentPlayerIndex, gameState.roundComplete]);
 
   // AI玩家自动行动
   useEffect(() => {
@@ -101,8 +110,11 @@ export function useGame() {
   return {
     gameState,
     isProcessing,
+    timerDuration,
+    setTimerDuration,
     startGame,
     handlePlayerAction,
+    handleTimeUp,
     nextRound,
     resetGame
   };
