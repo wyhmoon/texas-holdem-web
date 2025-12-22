@@ -6,55 +6,112 @@ import { Timer } from './components/Timer';
 import { MultiplayerLobby } from './components/MultiplayerLobby';
 import { RoomWaiting } from './components/RoomWaiting';
 import { useGame } from './hooks/useGame';
-import { useState } from 'react';
+import { useMultiplayerGame } from './hooks/useMultiplayerGame';
+import { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
   const [gameMode, setGameMode] = useState<'lobby' | 'waiting' | 'game'>('lobby');
+  const [isMultiplayer, setIsMultiplayer] = useState(false);
+  
+  // 单机游戏hook
+  const singlePlayerGame = useGame();
+  
+  // 多人游戏hook
+  const multiplayerGame = useMultiplayerGame();
+  
+  // 根据游戏模式选择使用的hook
+  const game = isMultiplayer ? multiplayerGame : singlePlayerGame;
+  const { gameState, isProcessing, timerDuration, setTimerDuration } = game;
+
+  // 多人游戏相关状态
   const [roomInfo, setRoomInfo] = useState<{ roomId: string; playerName: string } | null>(null);
   
-  const { 
-    gameState, 
-    isProcessing, 
-    timerDuration,
-    setTimerDuration,
-    startGame, 
-    handlePlayerAction, 
-    handleTimeUp,
-    nextRound, 
-    resetGame 
-  } = useGame();
+  // 连接WebSocket服务器
+  useEffect(() => {
+    if (isMultiplayer && !multiplayerGame.isConnected) {
+      // 连接到本地服务器
+      multiplayerGame.connectToServer('ws://localhost:3001');
+    }
+    
+    return () => {
+      // 只在非多人游戏模式下断开连接，避免在房间内意外断开
+      if (!isMultiplayer && multiplayerGame.isConnected) {
+        multiplayerGame.disconnect();
+      }
+    };
+  }, [isMultiplayer, multiplayerGame]);
 
-  const humanPlayer = gameState.players[0];
-  const isGameOver = gameState.phase === 'ended' || humanPlayer.chips <= 0;
-  const canStartNewRound = gameState.phase === 'waiting' || gameState.roundComplete;
+  // 处理房间信息变化
+  useEffect(() => {
+    if (multiplayerGame.roomId && isMultiplayer) {
+      setRoomInfo({ 
+        roomId: multiplayerGame.roomId, 
+        playerName: multiplayerGame.players.find(p => p.id === multiplayerGame.playerId)?.name || '玩家' 
+      });
+      
+      // 如果是房主且房间已创建，则进入等待界面
+      if (multiplayerGame.isHost) {
+        setGameMode('waiting');
+      }
+    }
+  }, [multiplayerGame.roomId, multiplayerGame.isHost, multiplayerGame.playerId, multiplayerGame.players, isMultiplayer]);
+
+  // 处理游戏状态变化
+  useEffect(() => {
+    if (isMultiplayer && gameState) {
+      setGameMode('game');
+    }
+  }, [isMultiplayer, gameState]);
+
+  const humanPlayer = gameState?.players[game.playerId || 0] || 
+                    (gameState?.players[0] || { chips: 0 });
+                    
+  const isGameOver = gameState ? 
+    (gameState.phase === 'ended' || humanPlayer.chips <= 0) : 
+    false;
+    
+  const canStartNewRound = gameState ? 
+    (gameState.phase === 'waiting' || gameState.roundComplete) : 
+    false;
 
   // 多人模式处理
   const handleCreateRoom = (playerName: string) => {
-    // 生成房间号（6位大写字母和数字）
-    const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-    setRoomInfo({ roomId, playerName });
-    setGameMode('waiting');
-    console.log('创建房间:', roomId, playerName);
+    // 只有在未连接时才设置多人游戏模式
+    if (!multiplayerGame.isConnected) {
+      setIsMultiplayer(true);
+    }
+    multiplayerGame.createRoom(playerName);
   };
 
   const handleJoinRoom = (roomId: string, playerName: string) => {
-    // TODO: 连接WebSocket加入房间
-    console.log('加入房间:', roomId, playerName);
-    setGameMode('game');
+    // 只有在未连接时才设置多人游戏模式
+    if (!multiplayerGame.isConnected) {
+      setIsMultiplayer(true);
+    }
+    multiplayerGame.joinRoom(roomId, playerName);
   };
 
   const handlePlayOffline = () => {
     setGameMode('game');
+    setIsMultiplayer(false);
   };
 
   const handleStartGame = () => {
-    setGameMode('game');
+    if (isMultiplayer) {
+      multiplayerGame.startGame();
+    } else {
+      singlePlayerGame.startGame();
+    }
   };
 
   const handleLeaveRoom = () => {
+    if (isMultiplayer) {
+      multiplayerGame.disconnect();
+    }
     setRoomInfo(null);
     setGameMode('lobby');
+    setIsMultiplayer(false);
   };
 
   // 显示大厅
@@ -84,44 +141,53 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1>🃏 德州扑克</h1>
-        <div className="header-info">
-          <span className="blind-info">盲注: {gameState.smallBlindAmount}/{gameState.bigBlindAmount}</span>
-        </div>
+        {gameState && (
+          <div className="header-info">
+            <span className="blind-info">盲注: {gameState.smallBlindAmount}/{gameState.bigBlindAmount}</span>
+            {isMultiplayer && multiplayerGame.roomId && (
+              <span className="room-info">房间: {multiplayerGame.roomId}</span>
+            )}
+          </div>
+        )}
       </header>
 
-      <GameLog gameState={gameState} />
-      <Timer 
-        gameState={gameState}
-        isHumanTurn={gameState.currentPlayerIndex === 0}
-        onTimeUp={handleTimeUp}
-        totalTime={timerDuration}
-        setTotalTime={setTimerDuration}
-      />
+      {gameState && <GameLog gameState={gameState} />}
+      {gameState && (
+        <Timer 
+          gameState={gameState}
+          isHumanTurn={gameState.currentPlayerIndex === (isMultiplayer ? multiplayerGame.playerId : 0)}
+          onTimeUp={isMultiplayer ? multiplayerGame.handleTimeUp : singlePlayerGame.handleTimeUp}
+          totalTime={timerDuration}
+          setTotalTime={setTimerDuration}
+        />
+      )}
 
       <main className="app-main">
-        <PokerTable gameState={gameState} />
+        {gameState && <PokerTable gameState={gameState} />}
         
         <div className="controls-section">
-          {!isGameOver && (
+          {gameState && !isGameOver && (
             <>
               {canStartNewRound ? (
                 <button 
                   className="control-btn start-btn"
-                  onClick={gameState.phase === 'waiting' ? startGame : nextRound}
+                  onClick={gameState.phase === 'waiting' ? handleStartGame : 
+                           (isMultiplayer ? multiplayerGame.nextRound : singlePlayerGame.nextRound)}
                 >
                   {gameState.phase === 'waiting' ? '🎮 开始游戏' : '▶️ 下一轮'}
                 </button>
               ) : (
                 <ActionPanel 
                   gameState={gameState}
-                  onAction={handlePlayerAction}
-                  disabled={isProcessing || gameState.currentPlayerIndex !== 0}
+                  onAction={isMultiplayer ? multiplayerGame.handlePlayerAction : singlePlayerGame.handlePlayerAction}
+                  disabled={isProcessing || 
+                           gameState.currentPlayerIndex !== (isMultiplayer ? multiplayerGame.playerId : 0)}
                 />
               )}
             </>
           )}
           
-          {isGameOver && (
+          {gameState && isGameOver && (
             <div className="game-over">
               <h2>游戏结束!</h2>
               <p>
@@ -130,7 +196,10 @@ function App() {
                   : '你已经没有筹码了'
                 }
               </p>
-              <button className="control-btn reset-btn" onClick={resetGame}>
+              <button 
+                className="control-btn reset-btn" 
+                onClick={isMultiplayer ? multiplayerGame.resetGame : singlePlayerGame.resetGame}
+              >
                 🔄 重新开始
               </button>
             </div>

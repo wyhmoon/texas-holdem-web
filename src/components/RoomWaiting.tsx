@@ -36,8 +36,24 @@ export const RoomWaiting: React.FC<RoomWaitingProps> = ({
               <span className="player-role">房主</span>
             </div>
             <div className="player-item waiting">
-              <span className="player-icon">⏳</span>
-              <span className="player-name">等待玩家加入...</span>
+              <span className="player-icon">👤</span>
+              <span className="player-name">AI玩家1</span>
+            </div>
+            <div className="player-item waiting">
+              <span className="player-icon">👤</span>
+              <span className="player-name">AI玩家2</span>
+            </div>
+            <div className="player-item waiting">
+              <span className="player-icon">👤</span>
+              <span className="player-name">AI玩家3</span>
+            </div>
+            <div className="player-item waiting">
+              <span className="player-icon">👤</span>
+              <span className="player-name">AI玩家4</span>
+            </div>
+            <div className="player-item waiting">
+              <span className="player-icon">👤</span>
+              <span className="player-name">AI玩家5</span>
             </div>
           </div>
         </div>

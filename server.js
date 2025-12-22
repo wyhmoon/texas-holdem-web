@@ -20,6 +20,13 @@ function broadcastToRoom(roomId, message, excludeClient = null) {
   });
 }
 
+// 向特定客户端发送消息
+function sendToClient(client, message) {
+  if (client && client.readyState === 1) {
+    client.send(JSON.stringify(message));
+  }
+}
+
 wss.on('connection', (ws) => {
   console.log('新客户端连接');
   let currentRoom = null;
@@ -98,36 +105,6 @@ wss.on('connection', (ws) => {
           break;
         }
         
-        case 'game-state-update': {
-          // 同步游戏状态
-          if (!currentRoom) break;
-          
-          const room = rooms.get(currentRoom);
-          if (room) {
-            room.gameState = message.gameState;
-            
-            // 广播给房间内其他玩家
-            broadcastToRoom(currentRoom, {
-              type: 'game-state-sync',
-              gameState: message.gameState
-            }, ws);
-          }
-          break;
-        }
-        
-        case 'player-action': {
-          // 玩家行动
-          if (!currentRoom) break;
-          
-          broadcastToRoom(currentRoom, {
-            type: 'player-action',
-            playerId: message.playerId,
-            action: message.action,
-            raiseAmount: message.raiseAmount
-          }, ws);
-          break;
-        }
-        
         case 'start-game': {
           // 开始游戏
           if (!currentRoom) break;
@@ -149,12 +126,13 @@ wss.on('connection', (ws) => {
     if (currentRoom) {
       const room = rooms.get(currentRoom);
       if (room) {
+        const clientData = room.clients.get(ws);
         room.clients.delete(ws);
         
         // 通知其他玩家
         broadcastToRoom(currentRoom, {
           type: 'player-left',
-          playerId
+          playerId: clientData ? clientData.id : null
         });
         
         // 如果房间空了，删除房间
