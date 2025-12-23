@@ -165,6 +165,19 @@ export function useMultiplayerGame() {
     }
   }, []);
 
+  // 添加AI玩家
+  const addAIPlayer = useCallback(() => {
+    console.log('添加AI玩家 - isHost:', isHost, '连接状态:', wsRef.current?.readyState);
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && isHost) {
+      wsRef.current.send(JSON.stringify({
+        type: 'add-ai-player'
+      }));
+      console.log('添加AI玩家消息已发送');
+    } else {
+      console.log('无法发送添加AI玩家消息 - 连接未就绪或不是房主');
+    }
+  }, [isHost]);
+
   // 开始游戏
   const startGame = useCallback(() => {
     console.log('开始游戏 - isHost:', isHost, '连接状态:', wsRef.current?.readyState);
@@ -253,6 +266,7 @@ export function useMultiplayerGame() {
     createRoom,
     joinRoom,
     startGame,
+    addAIPlayer,
     handlePlayerAction,
     handleTimeUp,
     getAvailableActions,

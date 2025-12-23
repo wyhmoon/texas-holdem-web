@@ -7,6 +7,7 @@ interface RoomWaitingProps {
   isHost: boolean;
   players?: Array<{id: number, name: string}>;
   onStartGame: () => void;
+  onAddAIPlayer: () => void;
   onLeaveRoom: () => void;
 }
 
@@ -53,6 +54,12 @@ export const RoomWaiting: React.FC<RoomWaitingProps> = ({
 
         {isHost && (
           <div className="room-actions">
+            <button 
+              className="room-btn add-ai-btn"
+              onClick={onAddAIPlayer}
+            >
+              添加AI玩家
+            </button>
             <button 
               className="room-btn start-game-btn"
               onClick={onStartGame}

@@ -130,6 +130,13 @@ function App() {
     );
   }
 
+  // 添加AI玩家
+  const handleAddAIPlayer = () => {
+    if (isMultiplayer) {
+      multiplayerGame.addAIPlayer();
+    }
+  };
+
   // 显示房间等待界面
   if (gameMode === 'waiting' && roomInfo) {
     return (
@@ -141,6 +148,7 @@ function App() {
           multiplayerGame.players : 
           [{ id: multiplayerGame.playerId || 0, name: roomInfo.playerName }]}
         onStartGame={handleStartGame}
+        onAddAIPlayer={handleAddAIPlayer}
         onLeaveRoom={handleLeaveRoom}
       />
     );

@@ -177,6 +177,15 @@
   box-shadow: 0 6px 20px rgba(127, 140, 141, 0.6);
 }
 
+.add-ai-btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+
+.add-ai-btn:hover {
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+}
+
 .connection-info {
   text-align: center;
   padding: 15px;

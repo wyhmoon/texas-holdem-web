@@ -34,7 +34,7 @@ function broadcastToRoom(roomId, message, excludeClient = null) {
         console.log(`跳过客户端, 状态检查失败 - readyState: ${clientWs.readyState}`);
       }
     } else {
-      console.log(`跳过客户端 (被排除)`);
+      console.log(`跳过客户端 [${clientWs.constructor.name}] (被排除)`);
     }
   });
   
@@ -141,6 +141,79 @@ wss.on('connection', (ws) => {
           break;
         }
         
+        case 'add-ai-player': {
+          console.log('收到添加AI玩家请求，currentRoom:', currentRoom);
+          // 添加AI玩家
+          if (!currentRoom) {
+            console.log('错误：没有找到当前房间');
+            break;
+          }
+          
+          // 获取房间
+          const room = rooms.get(currentRoom);
+          if (!room) {
+            console.log('错误：没有找到房间', currentRoom);
+            break;
+          }
+          
+          // 验证发送消息的客户端是否是房主（创建房间的客户端）
+          if (room.host !== ws) {
+            console.log('错误：只有房主可以添加AI玩家');
+            // 向客户端发送错误消息
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: '只有房主可以添加AI玩家'
+            }));
+            break;
+          }
+          
+          // 检查是否已达到最大玩家数
+          if (room.clients.size >= 6) {
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: '房间已满，无法添加更多玩家'
+            }));
+            break;
+          }
+          
+          // 为新AI玩家分配ID
+          const newAIPlayerId = room.clients.size;
+          const aiPlayerName = `AI玩家${newAIPlayerId}`;
+          
+          // 添加AI玩家到房间客户端列表
+          // 使用一个虚拟WebSocket对象来表示AI玩家，但实际上AI玩家不需要WebSocket连接
+          // 我们只需要更新玩家列表，不需要真正的WebSocket连接
+          
+          // 向房主发送确认消息
+          ws.send(JSON.stringify({
+            type: 'ai-player-added',
+            playerId: newAIPlayerId,
+            playerName: aiPlayerName
+          }));
+          
+          // 通知房间内所有玩家AI玩家已添加
+          const updatedPlayers = Array.from(room.clients.entries()).map(([client, playerData]) => ({
+            id: playerData.id,
+            name: playerData.name
+          }));
+          
+          // 添加AI玩家到列表
+          updatedPlayers.push({
+            id: newAIPlayerId,
+            name: aiPlayerName
+          });
+          
+          broadcastToRoom(currentRoom, {
+            type: 'player-joined',
+            playerId: newAIPlayerId,
+            playerName: aiPlayerName,
+            players: updatedPlayers
+          });
+          
+          console.log(`AI玩家 ${aiPlayerName} 已添加到房间 ${currentRoom}`);
+          break;
+        }
+          
         case 'start-game': {
           console.log('收到开始游戏请求，currentRoom:', currentRoom);
           // 开始游戏
@@ -169,12 +242,12 @@ wss.on('connection', (ws) => {
           
           console.log('房间找到，玩家数量：', room.clients.size);
           
-          // 获取房间内的所有玩家
+          // 获取房间内的所有真实玩家
           const clientsArray = Array.from(room.clients.entries());
-          const players = clientsArray.map(([client, clientData], index) => ({
+          let players = clientsArray.map(([client, clientData], index) => ({
             id: clientData.id,
             name: clientData.name,
-            type: index === 0 ? 'human' : 'ai', // 第一个玩家是人类玩家
+            type: 'human', // 真实玩家
             chips: 1000, // 初始筹码
             cards: [], // 初始没有牌
             currentBet: 0,
@@ -186,6 +259,30 @@ wss.on('connection', (ws) => {
             isBigBlind: false,
             isActive: true
           }));
+          
+          // 如果玩家少于6人，自动添加AI玩家
+          const maxPlayers = 6;
+          const humanPlayersCount = players.length;
+          
+          if (humanPlayersCount < maxPlayers) {
+            for (let i = humanPlayersCount; i < maxPlayers; i++) {
+              players.push({
+                id: i,
+                name: `AI玩家${i}`,
+                type: 'ai',
+                chips: 1000,
+                cards: [],
+                currentBet: 0,
+                totalBet: 0,
+                isFolded: false,
+                isAllIn: false,
+                isDealer: false,
+                isSmallBlind: false,
+                isBigBlind: false,
+                isActive: true
+              });
+            }
+          }
           
           // 创建初始游戏状态
           const gameState = {
@@ -211,13 +308,6 @@ wss.on('connection', (ws) => {
           room.gameState = gameState;
           
           console.log('广播游戏开始消息到房间：', currentRoom);
-          console.log('房间内客户端数量：', room.clients.size);
-          
-          // 广播消息前记录客户端信息
-          room.clients.forEach((client, index) => {
-            console.log('客户端状态 - readyState:', client.readyState, '是否为房主:', client === room.host);
-          });
-          
           broadcastToRoom(currentRoom, {
             type: 'game-started',
             gameState
