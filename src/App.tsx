@@ -44,7 +44,7 @@ function App() {
 
   // 处理房间信息变化
   useEffect(() => {
-    if (multiplayerGame.roomId && isMultiplayer) {
+    if (multiplayerGame.roomId && isMultiplayer && gameMode !== 'game') { // 添加条件，确保在游戏模式下不切换
       setRoomInfo({ 
         roomId: multiplayerGame.roomId, 
         playerName: multiplayerGame.players.find(p => p.id === multiplayerGame.playerId)?.name || '玩家' 
@@ -58,11 +58,13 @@ function App() {
         setGameMode('waiting');
       }
     }
-  }, [multiplayerGame.roomId, multiplayerGame.isHost, multiplayerGame.playerId, multiplayerGame.players, isMultiplayer]);
+  }, [multiplayerGame.roomId, multiplayerGame.isHost, multiplayerGame.playerId, multiplayerGame.players, isMultiplayer, gameMode]); // 添加 gameMode 作为依赖
 
   // 处理游戏状态变化
   useEffect(() => {
+    console.log('游戏状态变化检测:', { isMultiplayer, hasGameState: !!gameState, gameState });
     if (isMultiplayer && gameState) {
+      console.log('切换到游戏模式');
       setGameMode('game');
     }
   }, [isMultiplayer, gameState]);
@@ -80,21 +82,19 @@ function App() {
 
   // 多人模式处理
   const handleCreateRoom = (playerName: string) => {
-    // 确保在多人游戏模式下
-    setIsMultiplayer(true);
-    // 延迟执行，确保状态更新完成
-    setTimeout(() => {
-      multiplayerGame.createRoom(playerName);
-    }, 0);
+    multiplayerGame.createRoom(playerName);
+    // 只有在未连接时才设置多人游戏模式
+    if (!multiplayerGame.isConnected) {
+      setIsMultiplayer(true);
+    }
   };
 
   const handleJoinRoom = (roomId: string, playerName: string) => {
-    // 确保在多人游戏模式下
-    setIsMultiplayer(true);
-    // 延迟执行，确保状态更新完成
-    setTimeout(() => {
-      multiplayerGame.joinRoom(roomId, playerName);
-    }, 0);
+    multiplayerGame.joinRoom(roomId, playerName);
+    // 只有在未连接时才设置多人游戏模式
+    if (!multiplayerGame.isConnected) {
+      setIsMultiplayer(true);
+    }
   };
 
   const handlePlayOffline = () => {

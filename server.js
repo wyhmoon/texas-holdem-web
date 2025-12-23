@@ -11,13 +11,34 @@ const rooms = new Map();
 // 广播消息到房间内所有客户端
 function broadcastToRoom(roomId, message, excludeClient = null) {
   const room = rooms.get(roomId);
-  if (!room) return;
+  if (!room) {
+    console.log('错误：尝试向不存在的房间广播消息', roomId);
+    return;
+  }
 
-  room.clients.forEach(client => {
-    if (client !== excludeClient && client.readyState === 1) {
-      client.send(JSON.stringify(message));
+  console.log(`准备向房间 ${roomId} 广播消息，客户端数量: ${room.clients.size}, 排除客户端: ${!!excludeClient}`);
+  
+  let sentCount = 0;
+  room.clients.forEach((clientData, clientWs) => {
+    if (clientWs !== excludeClient) {
+      // 检查WebSocket连接状态 - clientWs是WebSocket实例，clientData是{id, name}对象
+      if (clientWs.readyState === 1) { // WebSocket.OPEN = 1
+        try {
+          clientWs.send(JSON.stringify(message));
+          sentCount++;
+          console.log(`消息已发送给客户端, 是否为房主: ${clientWs === room.host}, 状态: ${clientWs.readyState}`);
+        } catch (error) {
+          console.error('发送消息失败:', error);
+        }
+      } else {
+        console.log(`跳过客户端, 状态检查失败 - readyState: ${clientWs.readyState}`);
+      }
+    } else {
+      console.log(`跳过客户端 (被排除)`);
     }
   });
+  
+  console.log(`消息广播完成，共发送: ${sentCount} 条`);
 }
 
 // 向特定客户端发送消息
@@ -121,12 +142,32 @@ wss.on('connection', (ws) => {
         }
         
         case 'start-game': {
+          console.log('收到开始游戏请求，currentRoom:', currentRoom);
           // 开始游戏
-          if (!currentRoom) break;
+          if (!currentRoom) {
+            console.log('错误：没有找到当前房间');
+            break;
+          }
           
-          // 创建初始游戏状态
+          // 获取房间
           const room = rooms.get(currentRoom);
-          if (!room) break;
+          if (!room) {
+            console.log('错误：没有找到房间', currentRoom);
+            break;
+          }
+          
+          // 验证发送消息的客户端是否是房主（创建房间的客户端）
+          if (room.host !== ws) {
+            console.log('错误：只有房主可以开始游戏');
+            // 向客户端发送错误消息
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: '只有房主可以开始游戏'
+            }));
+            break;
+          }
+          
+          console.log('房间找到，玩家数量：', room.clients.size);
           
           // 获取房间内的所有玩家
           const clientsArray = Array.from(room.clients.entries());
@@ -169,10 +210,19 @@ wss.on('connection', (ws) => {
           // 更新房间的游戏状态
           room.gameState = gameState;
           
+          console.log('广播游戏开始消息到房间：', currentRoom);
+          console.log('房间内客户端数量：', room.clients.size);
+          
+          // 广播消息前记录客户端信息
+          room.clients.forEach((client, index) => {
+            console.log('客户端状态 - readyState:', client.readyState, '是否为房主:', client === room.host);
+          });
+          
           broadcastToRoom(currentRoom, {
             type: 'game-started',
             gameState
           });
+          console.log('游戏开始消息已广播');
           break;
         }
       }

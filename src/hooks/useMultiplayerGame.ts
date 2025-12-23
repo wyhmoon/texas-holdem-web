@@ -35,9 +35,11 @@ export function useMultiplayerGame() {
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
+          console.log('收到WebSocket消息:', message.type);
           
           switch (message.type) {
             case 'room-created':
+              console.log('处理房间创建消息:', message);
               setRoomId(message.roomId);
               setPlayerId(message.playerId);
               setIsHost(true);
@@ -47,6 +49,7 @@ export function useMultiplayerGame() {
               break;
               
             case 'room-joined':
+              console.log('处理房间加入消息:', message);
               setRoomId(message.roomId);
               setPlayerId(message.playerId);
               setIsHost(false);
@@ -56,6 +59,7 @@ export function useMultiplayerGame() {
               break;
               
             case 'player-joined':
+              console.log('处理玩家加入消息:', message);
               // 如果消息包含完整的玩家列表，则使用完整列表
               if (message.players && Array.isArray(message.players)) {
                 setPlayers(message.players);
@@ -76,6 +80,7 @@ export function useMultiplayerGame() {
               break;
               
             case 'player-left':
+              console.log('处理玩家离开消息:', message);
               // 如果消息包含完整的玩家列表，则使用完整列表
               if (message.players && Array.isArray(message.players)) {
                 setPlayers(message.players);
@@ -86,18 +91,22 @@ export function useMultiplayerGame() {
               break;
               
             case 'game-started':
+              console.log('收到游戏开始消息:', message.gameState);
               setGameState(message.gameState);
               break;
               
             case 'game-state-update':
+              console.log('收到游戏状态更新:', message.gameState);
               setGameState(message.gameState);
               break;
               
             case 'available-actions':
+              console.log('收到可用行动消息:', message);
               // 可用行动列表已在gameState中处理
               break;
               
             case 'error':
+              console.log('收到错误消息:', message.message);
               setError(message.message);
               break;
           }
@@ -158,10 +167,14 @@ export function useMultiplayerGame() {
 
   // 开始游戏
   const startGame = useCallback(() => {
+    console.log('开始游戏 - isHost:', isHost, '连接状态:', wsRef.current?.readyState);
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN && isHost) {
       wsRef.current.send(JSON.stringify({
         type: 'start-game'
       }));
+      console.log('开始游戏消息已发送');
+    } else {
+      console.log('无法发送开始游戏消息 - 连接未就绪或不是房主');
     }
   }, [isHost]);
 
