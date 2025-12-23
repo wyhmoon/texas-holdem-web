@@ -53,6 +53,9 @@ function App() {
       // 如果是房主且房间已创建，则进入等待界面
       if (multiplayerGame.isHost) {
         setGameMode('waiting');
+      } else if (multiplayerGame.playerId !== null) {
+        // 如果是加入房间的玩家，也需要进入等待界面
+        setGameMode('waiting');
       }
     }
   }, [multiplayerGame.roomId, multiplayerGame.isHost, multiplayerGame.playerId, multiplayerGame.players, isMultiplayer]);
@@ -77,19 +80,21 @@ function App() {
 
   // 多人模式处理
   const handleCreateRoom = (playerName: string) => {
-    // 只有在未连接时才设置多人游戏模式
-    if (!multiplayerGame.isConnected) {
-      setIsMultiplayer(true);
-    }
-    multiplayerGame.createRoom(playerName);
+    // 确保在多人游戏模式下
+    setIsMultiplayer(true);
+    // 延迟执行，确保状态更新完成
+    setTimeout(() => {
+      multiplayerGame.createRoom(playerName);
+    }, 0);
   };
 
   const handleJoinRoom = (roomId: string, playerName: string) => {
-    // 只有在未连接时才设置多人游戏模式
-    if (!multiplayerGame.isConnected) {
-      setIsMultiplayer(true);
-    }
-    multiplayerGame.joinRoom(roomId, playerName);
+    // 确保在多人游戏模式下
+    setIsMultiplayer(true);
+    // 延迟执行，确保状态更新完成
+    setTimeout(() => {
+      multiplayerGame.joinRoom(roomId, playerName);
+    }, 0);
   };
 
   const handlePlayOffline = () => {
@@ -131,6 +136,10 @@ function App() {
       <RoomWaiting
         roomId={roomInfo.roomId}
         playerName={roomInfo.playerName}
+        isHost={multiplayerGame.isHost}
+        players={multiplayerGame.players.length > 0 ? 
+          multiplayerGame.players : 
+          [{ id: multiplayerGame.playerId || 0, name: roomInfo.playerName }]}
         onStartGame={handleStartGame}
         onLeaveRoom={handleLeaveRoom}
       />

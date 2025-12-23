@@ -41,23 +41,48 @@ export function useMultiplayerGame() {
               setRoomId(message.roomId);
               setPlayerId(message.playerId);
               setIsHost(true);
+              if (message.players && Array.isArray(message.players)) {
+                setPlayers(message.players);
+              }
               break;
               
             case 'room-joined':
               setRoomId(message.roomId);
               setPlayerId(message.playerId);
               setIsHost(false);
+              if (message.players && Array.isArray(message.players)) {
+                setPlayers(message.players);
+              }
               break;
               
             case 'player-joined':
-              setPlayers(prev => [
-                ...prev,
-                { id: message.playerId, name: message.playerName }
-              ]);
+              // 如果消息包含完整的玩家列表，则使用完整列表
+              if (message.players && Array.isArray(message.players)) {
+                setPlayers(message.players);
+              } else {
+                // 否则，只添加新加入的玩家
+                setPlayers(prev => {
+                  // 检查玩家是否已经存在于列表中，避免重复添加
+                  const playerExists = prev.some(p => p.id === message.playerId);
+                  if (!playerExists) {
+                    return [
+                      ...prev,
+                      { id: message.playerId, name: message.playerName }
+                    ];
+                  }
+                  return prev;
+                });
+              }
               break;
               
             case 'player-left':
-              setPlayers(prev => prev.filter(p => p.id !== message.playerId));
+              // 如果消息包含完整的玩家列表，则使用完整列表
+              if (message.players && Array.isArray(message.players)) {
+                setPlayers(message.players);
+              } else {
+                // 否则，从列表中移除离开的玩家
+                setPlayers(prev => prev.filter(p => p.id !== message.playerId));
+              }
               break;
               
             case 'game-started':
