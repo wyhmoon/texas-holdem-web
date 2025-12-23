@@ -98,6 +98,9 @@ export function useMultiplayerGame() {
             case 'game-state-update':
               console.log('收到游戏状态更新:', message.gameState);
               setGameState(message.gameState);
+              // 重置处理状态，允许玩家进行下一次操作
+              setIsProcessing(false);
+              processingRef.current = false;
               break;
               
             case 'available-actions':
@@ -108,6 +111,11 @@ export function useMultiplayerGame() {
             case 'error':
               console.log('收到错误消息:', message.message);
               setError(message.message);
+              // 如果是操作相关的错误，重置处理状态
+              if (isProcessing) {
+                setIsProcessing(false);
+                processingRef.current = false;
+              }
               break;
           }
         } catch (error) {
@@ -193,7 +201,10 @@ export function useMultiplayerGame() {
 
   // 玩家行动
   const handlePlayerAction = useCallback((action: PlayerAction, raiseAmount?: number) => {
-    if (!gameState || !playerId || gameState.currentPlayerIndex !== playerId || isProcessing) {
+    console.log('处理玩家操作:', { action, raiseAmount, gameState, playerId, isCurrentPlayer: gameState?.currentPlayerIndex === playerId, isProcessing });
+    
+    if (!gameState || playerId === null || gameState.currentPlayerIndex !== playerId || isProcessing) {
+      console.log('无法执行操作，条件不满足');
       return;
     }
 
@@ -201,12 +212,17 @@ export function useMultiplayerGame() {
       setIsProcessing(true);
       processingRef.current = true;
       
+      console.log('发送玩家操作消息:', { type: 'player-action', playerId, action, raiseAmount });
       wsRef.current.send(JSON.stringify({
         type: 'player-action',
         playerId,
         action,
         raiseAmount
       }));
+    } else {
+      console.log('无法发送操作消息，WebSocket连接未就绪');
+      setIsProcessing(false);
+      processingRef.current = false;
     }
   }, [gameState, playerId, isProcessing]);
 

@@ -5,21 +5,23 @@ import './ActionPanel.css';
 
 interface ActionPanelProps {
   gameState: GameState;
+  playerId?: number; // 多人游戏中人类玩家的ID
   onAction: (action: PlayerAction, raiseAmount?: number) => void;
   disabled: boolean;
 }
 
 export const ActionPanel: React.FC<ActionPanelProps> = ({ 
   gameState, 
+  playerId = 0, // 默认为单机游戏的玩家0
   onAction, 
   disabled 
 }) => {
-  const humanPlayer = gameState.players[0];
-  const isHumanTurn = gameState.currentPlayerIndex === 0 && !disabled;
-  const availableActions = getAvailableActions(gameState, 0);
+  const humanPlayer = gameState.players[playerId];
+  const isHumanTurn = gameState.currentPlayerIndex === playerId && !disabled;
+  const availableActions = getAvailableActions(gameState, playerId);
   
-  const callAmount = getCallAmount(gameState, 0);
-  const minRaiseAmount = getMinRaiseAmount(gameState, 0);
+  const callAmount = getCallAmount(gameState, playerId);
+  const minRaiseAmount = getMinRaiseAmount(gameState, playerId);
   const maxRaise = humanPlayer.chips + humanPlayer.currentBet;
   
   const [raiseAmount, setRaiseAmount] = useState(

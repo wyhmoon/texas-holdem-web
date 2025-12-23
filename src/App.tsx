@@ -196,11 +196,13 @@ function App() {
               ) : (
                 <ActionPanel 
                   gameState={gameState}
+                  playerId={isMultiplayer ? multiplayerGame.playerId : 0}
                   onAction={isMultiplayer ? multiplayerGame.handlePlayerAction : singlePlayerGame.handlePlayerAction}
                   disabled={isProcessing || 
                            gameState.currentPlayerIndex !== (isMultiplayer ? multiplayerGame.playerId : 0)}
                 />
               )}
+              {gameState && isMultiplayer && console.log('当前玩家ID:', multiplayerGame.playerId, '当前行动玩家索引:', gameState.currentPlayerIndex, '是否为当前玩家:', gameState.currentPlayerIndex === multiplayerGame.playerId)}
             </>
           )}
           

@@ -17,6 +17,7 @@ export const RoomWaiting: React.FC<RoomWaitingProps> = ({
   isHost,
   players = [],
   onStartGame,
+  onAddAIPlayer,
   onLeaveRoom
 }) => {
   return (
