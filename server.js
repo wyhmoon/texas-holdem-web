@@ -66,11 +66,9 @@ function checkRoundEnd(gameState) {
   const activeBets = activePlayers.map(player => player.currentBet);
   const maxBet = Math.max(...activeBets);
   
-  // 如果所有活跃玩家的下注都等于最高下注，且本轮行动次数足够（每个玩家都至少行动过一次）
+  // 如果所有活跃玩家的下注都等于最高下注，就认为本轮结束
   const allMatchMaxBet = activePlayers.every(player => player.currentBet === maxBet);
   
-  // 检查是否所有活跃玩家都已经行动过
-  // 这里简化处理，只要所有活跃玩家的下注金额相等，就认为本轮结束
   return allMatchMaxBet;
 }
 
@@ -94,7 +92,13 @@ function advanceGamePhase(room) {
       // 重置所有玩家的当前下注
       resetPlayerBets(gameState);
       // 设置庄家位置的下一个玩家为当前行动玩家
-      gameState.currentPlayerIndex = findNextActivePlayer(gameState, gameState.dealerIndex);
+      const nextActivePlayerFlop = findNextActivePlayer(gameState, gameState.dealerIndex);
+      if (nextActivePlayerFlop !== -1) {
+        gameState.currentPlayerIndex = nextActivePlayerFlop;
+      } else {
+        // 如果没有活跃玩家，可能所有玩家都弃牌了
+        gameState.phase = 'showdown';
+      }
       break;
       
     case 'flop': // 翻牌阶段
@@ -105,7 +109,13 @@ function advanceGamePhase(room) {
       gameState.phase = 'turn';
       console.log(`进入 turn 阶段，公共牌: ${JSON.stringify(gameState.communityCards)}`);
       resetPlayerBets(gameState);
-      gameState.currentPlayerIndex = findNextActivePlayer(gameState, gameState.dealerIndex);
+      const nextActivePlayerTurn = findNextActivePlayer(gameState, gameState.dealerIndex);
+      if (nextActivePlayerTurn !== -1) {
+        gameState.currentPlayerIndex = nextActivePlayerTurn;
+      } else {
+        // 如果没有活跃玩家，可能所有玩家都弃牌了
+        gameState.phase = 'showdown';
+      }
       break;
       
     case 'turn': // 转牌阶段
@@ -116,7 +126,13 @@ function advanceGamePhase(room) {
       gameState.phase = 'river';
       console.log(`进入 river 阶段，公共牌: ${JSON.stringify(gameState.communityCards)}`);
       resetPlayerBets(gameState);
-      gameState.currentPlayerIndex = findNextActivePlayer(gameState, gameState.dealerIndex);
+      const nextActivePlayerRiver = findNextActivePlayer(gameState, gameState.dealerIndex);
+      if (nextActivePlayerRiver !== -1) {
+        gameState.currentPlayerIndex = nextActivePlayerRiver;
+      } else {
+        // 如果没有活跃玩家，可能所有玩家都弃牌了
+        gameState.phase = 'showdown';
+      }
       break;
       
     case 'river': // 河牌阶段
@@ -124,6 +140,11 @@ function advanceGamePhase(room) {
       gameState.phase = 'showdown';
       console.log(`进入 showdown 阶段，所有公共牌: ${JSON.stringify(gameState.communityCards)}`);
       // 这里可以计算胜负，但现在简化处理
+      break;
+      
+    case 'showdown':
+      // 摊牌阶段，可以计算胜负，但现在简化处理
+      console.log(`在 showdown 阶段，游戏状态: ${JSON.stringify(gameState.phase)}`);
       break;
       
     default:
@@ -147,15 +168,16 @@ function findNextActivePlayer(gameState, startIndex) {
   let attempts = 0;
   
   while (attempts < gameState.players.length) {
-    if (!gameState.players[index].isFolded && !gameState.players[index].isAllIn) {
+    const player = gameState.players[index];
+    if (!player.isFolded && !player.isAllIn) {
       return index;
     }
     index = (index + 1) % gameState.players.length;
     attempts++;
   }
   
-  // 如果没有找到活跃玩家，返回起始索引
-  return startIndex;
+  // 如果没有找到活跃玩家，返回-1表示没有活跃玩家
+  return -1;
 }
 
 // 处理AI玩家行动
@@ -613,6 +635,12 @@ wss.on('connection', (ws) => {
             break;
           }
           
+          // 如果游戏已经结束，忽略操作
+          if (room.gameState.phase === 'showdown' || room.gameState.phase === 'ended') {
+            console.log('游戏已经结束，忽略操作');
+            break;
+          }
+          
           const { action, raiseAmount } = message;
           const currentPlayerIndex = room.gameState.currentPlayerIndex;
           const currentPlayer = room.gameState.players[currentPlayerIndex];
@@ -678,14 +706,12 @@ wss.on('connection', (ws) => {
           // 检查本轮是否结束
           const roundEnded = checkRoundEnd(room.gameState);
           
-          let nextPlayerIndex;
           if (roundEnded) {
             // 本轮结束，进入下一阶段
             advanceGamePhase(room);
-            nextPlayerIndex = room.gameState.currentPlayerIndex; // advanceGamePhase会设置新的currentPlayerIndex
           } else {
             // 本轮未结束，移动到下一个玩家
-            nextPlayerIndex = (currentPlayerIndex + 1) % room.gameState.players.length;
+            let nextPlayerIndex = (currentPlayerIndex + 1) % room.gameState.players.length;
             let attempts = 0;
             
             // 跳过已弃牌或全押的玩家
