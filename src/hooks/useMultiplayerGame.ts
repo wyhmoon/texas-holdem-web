@@ -7,11 +7,11 @@ export function useMultiplayerGame() {
   const [isHost, setIsHost] = useState(false);
   const [playerId, setPlayerId] = useState<number | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
-  const [players, setPlayers] = useState<Array<{id: number, name: string}>>([]);
+  const [players, setPlayers] = useState<Array<{ id: number, name: string }>>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [timerDuration, setTimerDuration] = useState(60);
   const [error, setError] = useState<string | null>(null);
-  
+
   const wsRef = useRef<WebSocket | null>(null);
   const processingRef = useRef(false);
 
@@ -36,7 +36,7 @@ export function useMultiplayerGame() {
         try {
           const message = JSON.parse(event.data);
           console.log('收到WebSocket消息:', message.type);
-          
+
           switch (message.type) {
             case 'room-created':
               console.log('处理房间创建消息:', message);
@@ -47,7 +47,7 @@ export function useMultiplayerGame() {
                 setPlayers(message.players);
               }
               break;
-              
+
             case 'room-joined':
               console.log('处理房间加入消息:', message);
               setRoomId(message.roomId);
@@ -57,7 +57,7 @@ export function useMultiplayerGame() {
                 setPlayers(message.players);
               }
               break;
-              
+
             case 'player-joined':
               console.log('处理玩家加入消息:', message);
               // 如果消息包含完整的玩家列表，则使用完整列表
@@ -78,7 +78,7 @@ export function useMultiplayerGame() {
                 });
               }
               break;
-              
+
             case 'player-left':
               console.log('处理玩家离开消息:', message);
               // 如果消息包含完整的玩家列表，则使用完整列表
@@ -89,25 +89,32 @@ export function useMultiplayerGame() {
                 setPlayers(prev => prev.filter(p => p.id !== message.playerId));
               }
               break;
-              
+
             case 'game-started':
               console.log('收到游戏开始消息:', message.gameState);
               setGameState(message.gameState);
               break;
-              
+
             case 'game-state-update':
               console.log('收到游戏状态更新:', message.gameState);
+              // 调试：打印每个玩家的底牌数据
+              if (message.gameState.phase === 'showdown' || message.gameState.roundComplete) {
+                console.log('=== 前端接收到的 showdown 数据 ===');
+                message.gameState.players.forEach((p: { name: string; cards: unknown[]; isFolded: boolean }) => {
+                  console.log(`${p.name}: cards=${p.cards?.length || 0}, isFolded=${p.isFolded}`);
+                });
+              }
               setGameState(message.gameState);
               // 重置处理状态，允许玩家进行下一次操作
               setIsProcessing(false);
               processingRef.current = false;
               break;
-              
+
             case 'available-actions':
               console.log('收到可用行动消息:', message);
               // 可用行动列表已在gameState中处理
               break;
-              
+
             case 'error':
               console.log('收到错误消息:', message.message);
               setError(message.message);
@@ -202,7 +209,7 @@ export function useMultiplayerGame() {
   // 玩家行动
   const handlePlayerAction = useCallback((action: PlayerAction, raiseAmount?: number) => {
     console.log('处理玩家操作:', { action, raiseAmount, gameState, playerId, isCurrentPlayer: gameState?.currentPlayerIndex === playerId, isProcessing });
-    
+
     if (!gameState || playerId === null || gameState.currentPlayerIndex !== playerId || isProcessing) {
       console.log('无法执行操作，条件不满足');
       return;
@@ -211,7 +218,7 @@ export function useMultiplayerGame() {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       setIsProcessing(true);
       processingRef.current = true;
-      
+
       console.log('发送玩家操作消息:', { type: 'player-action', playerId, action, raiseAmount });
       wsRef.current.send(JSON.stringify({
         type: 'player-action',
@@ -245,9 +252,13 @@ export function useMultiplayerGame() {
 
   // 下一轮
   const nextRound = useCallback(() => {
-    // 在多人游戏中，下一轮由服务器控制
-    // 客户端只需要等待服务器发送新的游戏状态
-  }, []);
+    // 在多人游戏中，由房主控制开始下一轮
+    if (isHost && wsRef.current && wsRef.current.readyState === WebSocket.OPEN && gameState?.roundComplete) {
+      wsRef.current.send(JSON.stringify({
+        type: 'start-next-round'
+      }));
+    }
+  }, [isHost, gameState?.roundComplete]);
 
   // 重新开始游戏
   const resetGame = useCallback(() => {

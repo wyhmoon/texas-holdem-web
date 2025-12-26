@@ -39,7 +39,7 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
   };
 
   return (
-    <div 
+    <div
       className={`player-display position-${position} ${isCurrentPlayer ? 'current-player' : ''} ${player.isFolded ? 'folded' : ''} ${isWinner ? 'winner' : ''} ${player.isAllIn ? 'all-in' : ''}`}
     >
       <div className="player-info">
@@ -67,26 +67,30 @@ export const PlayerDisplay: React.FC<PlayerDisplayProps> = ({
           <div className="hand-rank">{player.handRank.name}</div>
         )}
       </div>
-      
+
       <div className="player-cards">
         {player.cards.length > 0 ? (
           <>
-            <Card 
-              card={player.cards[0]} 
-              hidden={!showCards && player.type === 'ai'} 
-              small 
+            <Card
+              card={player.cards[0]}
+              hidden={!showCards}
+              small
             />
-            <Card 
-              card={player.cards[1]} 
-              hidden={!showCards && player.type === 'ai'} 
-              small 
+            <Card
+              card={player.cards[1]}
+              hidden={!showCards}
+              small
             />
           </>
         ) : (
-          <div className="no-cards"></div>
+          showCards && !player.isFolded ? (
+            <div className="no-cards-showdown">无底牌数据</div>
+          ) : (
+            <div className="no-cards"></div>
+          )
         )}
       </div>
-      
+
       {isWinner && <div className="winner-crown">👑</div>}
     </div>
   );
